@@ -61,6 +61,10 @@ static const char fr_StrokeEngineDescriptions_5[] PROGMEM =
 static const char fr_StrokeEngineDescriptions_6[] PROGMEM =
     "Modifie la longueur, maintient la vitesse ; la sensation influe sur la "
     "direction.";
+static const char fr_StrokeEngineDescriptions_7[] PROGMEM =
+    "Coup entrant agressif avec pause ; la sensation contrôle la vitesse de sortie.";
+static const char fr_StrokeEngineDescriptions_8[] PROGMEM =
+    "Coup multi-phase avec pauses ; la sensation contrôle la vitesse finale.";
 
 static const char fr_StrokeEngineNames_0[] PROGMEM = "Simple Stroke";
 static const char fr_StrokeEngineNames_1[] PROGMEM = "Teasing Pounding";
@@ -69,6 +73,8 @@ static const char fr_StrokeEngineNames_3[] PROGMEM = "Half'n'Half";
 static const char fr_StrokeEngineNames_4[] PROGMEM = "Deeper";
 static const char fr_StrokeEngineNames_5[] PROGMEM = "Stop'n'Go";
 static const char fr_StrokeEngineNames_6[] PROGMEM = "Insist";
+static const char fr_StrokeEngineNames_7[] PROGMEM = "Slammin";
+static const char fr_StrokeEngineNames_8[] PROGMEM = "Knot";
 
 static const LanguageStruct fr = {
     .DeepThroatTrainerSync = fr_DeepThroatTrainerSync,
@@ -106,10 +112,13 @@ static const LanguageStruct fr = {
                                  fr_StrokeEngineDescriptions_3,
                                  fr_StrokeEngineDescriptions_4,
                                  fr_StrokeEngineDescriptions_5,
-                                 fr_StrokeEngineDescriptions_6},
+                                 fr_StrokeEngineDescriptions_6,
+                                 fr_StrokeEngineDescriptions_7,
+                                 fr_StrokeEngineDescriptions_8},
     .StrokeEngineNames = {fr_StrokeEngineNames_0, fr_StrokeEngineNames_1,
                           fr_StrokeEngineNames_2, fr_StrokeEngineNames_3,
                           fr_StrokeEngineNames_4, fr_StrokeEngineNames_5,
-                          fr_StrokeEngineNames_6}};
+                          fr_StrokeEngineNames_6, fr_StrokeEngineNames_7,
+                          fr_StrokeEngineNames_8}};
 
 #endif  // OSSM_SOFTWARE_FR_H

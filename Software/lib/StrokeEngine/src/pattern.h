@@ -647,3 +647,210 @@ class Insist : public Pattern {
         _realStroke = int((float)_stroke * _strokeFraction);
     }
 };
+
+/**************************************************************************/
+/*!
+  @brief  Slammin: Slam the business end of your OSSM in with a bit more
+  aggression than usual and pause at the end of the stroke to make it
+  feel more impactful and dramatic.
+
+  Depth & Stroke characteristics are the same as Simple Stroke.
+
+  The sensation slider controls the speed ratio of the outward stroke.
+  Positive values slow down the out-stroke more, negative values less.
+  The speed automatically scales with both stroke length and speed settings
+  to maintain consistent feel across different configurations.
+
+  Made with longer toys in mind.
+*/
+/**************************************************************************/
+class Slammin : public Pattern {
+  public:
+    Slammin(const char *str) : Pattern(str) {}
+
+    void setTimeOfStroke(float speed = 0) {
+        _timeOfStroke = 0.5 * speed;
+        _speed = speed;
+        _updateOutStrokeSpeed();
+    }
+
+    void setSensation(float sensation = 0) {
+        _sensation = sensation;
+        _updateOutStrokeSpeed();
+    }
+
+    void setStroke(int stroke) {
+        _stroke = stroke;
+        _updateOutStrokeSpeed();
+    }
+
+    motionParameter nextTarget(unsigned int index) {
+        // Calculate delay based on speed - curve tuned for good feel
+        // Faster speeds = shorter delays, slower speeds = longer delays
+        _updateDelay(int((sqrt((350000 * _speed) + 60000)) + 125));
+
+        if (!_isStillDelayed()) {
+            // Odd stroke index: slower outward stroke
+            if (index % 2) {
+                _nextMove.speed = _outStrokeSpeed;
+                _nextMove.acceleration = int(1.1 * _nextMove.speed / _timeOfStroke);
+                _nextMove.stroke = _depth - _stroke;
+            }
+            // Even stroke index: faster aggressive inward stroke with pause
+            else {
+                _nextMove.speed = int(1.6 * _stroke / _timeOfStroke);
+                _nextMove.acceleration = int(2.8 * _nextMove.speed / _timeOfStroke);
+                _nextMove.stroke = _depth;
+                _startDelay();
+            }
+            _nextMove.skip = false;
+        } else {
+            _nextMove.skip = true;
+        }
+
+        _index = index;
+        return _nextMove;
+    }
+
+  protected:
+    float _speed = 1.0;
+    int _outStrokeSpeed = 0;
+
+    void _updateOutStrokeSpeed() {
+        // Calculate a base out-stroke speed ratio that scales with both
+        // stroke length and time, providing consistent feel across settings.
+        // Sensation maps from -100..100 to speed multiplier 0.3..1.0
+        // Center (0) gives 0.65x speed, positive slows more, negative speeds up
+        float sensationFactor = fscale(-100.0, 100.0, 1.0, 0.3, _sensation, 0.0);
+
+        // Scale factor to compensate for longer strokes needing higher speeds
+        // to complete in reasonable time. sqrt provides smooth scaling.
+        float strokeScale = (_stroke > 0) ? sqrt((float)_stroke / 1000.0) + 0.5 : 1.0;
+
+        // Base speed calculation similar to simple stroke but scaled down
+        float baseSpeed = 1.5 * _stroke / _timeOfStroke;
+
+        // Combine factors: sensation controls ratio, stroke scale prevents
+        // awkwardly slow movement at high stroke/speed combinations
+        _outStrokeSpeed = int(baseSpeed * sensationFactor * strokeScale);
+
+        // Clamp to reasonable minimum to prevent stalling
+        if (_outStrokeSpeed < 100) _outStrokeSpeed = 100;
+    }
+};
+
+/**************************************************************************/
+/*!
+  @brief  Knot: A multi-phase stroke pattern with pauses that simulates
+  the feeling of a knot passing through. Features a 5-phase cycle:
+  - Phase 0: Full out-stroke at normal speed
+  - Phase 1: Partial in-stroke (70%) at reduced speed
+  - Phase 2: Pause
+  - Phase 3: Complete the remaining in-stroke at sensation-controlled speed
+  - Phase 4: Pause
+
+  Sensation controls the speed of the final push-in phase.
+  Higher values = slower final push, lower values = faster.
+  The pattern automatically scales delays based on speed settings.
+
+  Originally by Serket, V2 tweaks by Vampix.
+*/
+/**************************************************************************/
+class Knot : public Pattern {
+  public:
+    Knot(const char *str) : Pattern(str) {}
+
+    void setTimeOfStroke(float speed = 0) {
+        _timeOfStroke = 0.5 * speed;
+        _speed = speed;
+        _updateSlowSpeed();
+    }
+
+    void setSensation(float sensation = 0) {
+        _sensation = sensation;
+        _updateSlowSpeed();
+    }
+
+    void setStroke(int stroke) {
+        _stroke = stroke;
+        _updateSlowSpeed();
+    }
+
+    motionParameter nextTarget(unsigned int index) {
+        // Default acceleration
+        _nextMove.acceleration = int(3.0 * _nextMove.speed / _timeOfStroke);
+
+        // Calculate delay based on speed - longer delays at slower speeds
+        _updateDelay(int((sqrt((350000 * _speed) + 60000)) + 550));
+
+        if (!_isStillDelayed()) {
+            int phase = index % 5;
+
+            switch (phase) {
+                case 0:
+                    // Full out-stroke at normal speed
+                    _nextMove.acceleration = int(2.0 * _nextMove.speed / _timeOfStroke);
+                    _nextMove.speed = int(1.0 * _stroke / _timeOfStroke);
+                    _nextMove.stroke = _depth - _stroke;
+                    break;
+
+                case 1:
+                    // Partial in-stroke (70%) at reduced speed
+                    _nextMove.acceleration = int(2.0 * _nextMove.speed / _timeOfStroke);
+                    _nextMove.speed = int(0.8 * _stroke / _timeOfStroke);
+                    _nextMove.stroke = int((_depth - _stroke) + (_stroke * 0.70));
+                    break;
+
+                case 2:
+                    // First pause
+                    _startDelay();
+                    break;
+
+                case 3:
+                    // Complete in-stroke at sensation-controlled speed
+                    _nextMove.acceleration = int(2.3 * _nextMove.speed / _timeOfStroke);
+                    _nextMove.speed = _slowSpeed;
+                    _nextMove.stroke = _depth;
+#ifdef DEBUG_PATTERN
+                    Serial.println("Speed: " + String(_speed));
+                    Serial.println("Delay in ms: " + String(_delayInMillis));
+#endif
+                    break;
+
+                case 4:
+                    // Second pause
+                    _startDelay();
+                    break;
+            }
+            _nextMove.skip = false;
+        } else {
+            _nextMove.skip = true;
+        }
+
+        _index = index;
+        return _nextMove;
+    }
+
+  protected:
+    float _speed = 1.0;
+    int _slowSpeed = 0;
+
+    void _updateSlowSpeed() {
+        // Sensation controls the slow phase speed
+        // Maps abs(sensation) from 0..100 to multiplier 0.5..0.05
+        // Center (0) = 0.5x base speed, extremes = very slow
+        float sensationFactor = fscale(0.0, 100.0, 0.5, 0.05, abs(_sensation), 0.0);
+
+        // Scale factor to prevent awkwardly slow speeds at high stroke lengths
+        float strokeScale = (_stroke > 0) ? sqrt((float)_stroke / 1000.0) + 0.5 : 1.0;
+
+        // Base speed calculation
+        float baseSpeed = 1.0 * _stroke / _timeOfStroke;
+
+        // Combine factors
+        _slowSpeed = int(baseSpeed * sensationFactor * strokeScale);
+
+        // Clamp to reasonable minimum
+        if (_slowSpeed < 50) _slowSpeed = 50;
+    }
+};
