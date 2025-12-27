@@ -15,9 +15,13 @@ namespace Config {
     namespace Driver {
 
         // Top linear speed of the device.
-        constexpr float maxSpeedMmPerSecond = 900.0f;
+        // Calculated from MAX_RPM 1500: (1500/60) * 20 * 2 = 1000 mm/s
+        constexpr float maxSpeedMmPerSecond = 666.0f;
 
         // Top acceleration of the device.
+        // Lower values provide more torque/pushing force under load.
+        // If the motor stops when pushed against, try reducing this value.
+        // Original: 20000.0f, reduced for better torque under load.
         constexpr float maxAcceleration = 10000.0f;
 
         // This should match the step/rev of your stepper or servo.
@@ -60,7 +64,7 @@ namespace Config {
         // belt attachments subtract the linear block holder length (75mm on
         // OSSM) Recommended to also subtract e.g. 20mm to keep the backstop
         // well away from the device.
-        constexpr float maxStrokeSteps = 500.0_mm;
+        constexpr float maxStrokeSteps = 300.0_mm;
 
         // If the stroke length is less than this value, then the stroke is
         // likely the result of a poor homing.
