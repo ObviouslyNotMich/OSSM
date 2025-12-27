@@ -56,9 +56,9 @@ static const char enUs_StrokeEngineDescriptions_5[] PROGMEM =
 static const char enUs_StrokeEngineDescriptions_6[] PROGMEM =
     "Modifies length, maintains speed; sensation influences direction.";
 static const char enUs_StrokeEngineDescriptions_7[] PROGMEM =
-    "Aggressive in-stroke with pause; sensation controls out-stroke speed.";
-static const char enUs_StrokeEngineDescriptions_8[] PROGMEM =
     "Multi-phase stroke with pauses; sensation controls final push speed.";
+static const char enUs_StrokeEngineDescriptions_8[] PROGMEM =
+    "Slows down end of stroke; sensation controls slow portion amount.";
 
 static const char enUs_StrokeEngineNames_0[] PROGMEM = "Simple Stroke";
 static const char enUs_StrokeEngineNames_1[] PROGMEM = "Teasing Pounding";
@@ -67,8 +67,8 @@ static const char enUs_StrokeEngineNames_3[] PROGMEM = "Half'n'Half";
 static const char enUs_StrokeEngineNames_4[] PROGMEM = "Deeper";
 static const char enUs_StrokeEngineNames_5[] PROGMEM = "Stop'n'Go";
 static const char enUs_StrokeEngineNames_6[] PROGMEM = "Insist";
-static const char enUs_StrokeEngineNames_7[] PROGMEM = "Slammin";
-static const char enUs_StrokeEngineNames_8[] PROGMEM = "Knot";
+static const char enUs_StrokeEngineNames_7[] PROGMEM = "Knot";
+static const char enUs_StrokeEngineNames_8[] PROGMEM = "Struggle";
 
 static const LanguageStruct enUs = {
     .DeepThroatTrainerSync = enUs_DeepThroatTrainerSync,
